@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>在线 PDF 索引</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 8px 0; }
+    a { text-decoration: none; color: #0366d6; }
+  </style>
+</head>
+<body>
+  <h1>📖 在线阅读列表</h1>
+  <ul id="pdf-list"></ul>
+  <script>
+    // TODO: 按你仓库实际 PDF 文件名替换下面数组
+    const files = [
+      'Tennis-Book.pdf',
+      'Chapter1.pdf',
+      'Chapter2.pdf',
+      // … 其它所有 PDF 文件
+    ];
+    const ul = document.getElementById('pdf-list');
+    files.forEach(name => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `viewer.html?file=${encodeURIComponent(name)}`;
+      a.textContent = name;
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+  </script>
+</body>
+</html>
