@@ -4,32 +4,51 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Tennis Book PDF Viewer</title>
-    <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
     <style>
       body, html { margin:0; padding:0; height:100%; }
       #viewerContainer { width:100%; height:100vh; overflow:auto; }
     </style>
+
+    <!-- 1️⃣ 从 CDN 加载 pdf.js 核心库 (确保能在浏览器里 200 响应) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
   </head>
   <body>
     <div id="viewerContainer"></div>
+
     <script>
-      const params = new URLSearchParams(location.search);
-      const url = params.get('file') || 'Tennis-Book.pdf';
+      // 2️⃣ 告诉 pdf.js 去哪里加载 Worker
       pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
-      pdfjsLib.getDocument(url).promise.then(pdf => {
-        const container = document.getElementById('viewerContainer');
-        for (let i = 1; i <= pdf.numPages; i++) {
-          pdf.getPage(i).then(page => {
-            const vp = page.getViewport({ scale: 1.2 });
-            const canvas = document.createElement('canvas');
-            canvas.width = vp.width;
-            canvas.height = vp.height;
-            container.appendChild(canvas);
-            page.render({ canvasContext: canvas.getContext('2d'), viewport: vp });
-          });
-        }
-      });
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js';
+
+      // 3️⃣ 从 URL 查询字符串里取出 file 参数
+      const params = new URLSearchParams(window.location.search);
+      const file = params.get('file');
+      if (!file) {
+        document.body.innerHTML =
+          '<p style="color:red; padding:20px;">缺少 file 参数，请在 URL 加上 ?file=your.pdf</p>';
+        throw new Error('Missing file parameter');
+      }
+
+      // 4️⃣ 加载并渲染 PDF
+      pdfjsLib.getDocument(file).promise
+        .then(pdf => {
+          const container = document.getElementById('viewerContainer');
+          for (let i = 1; i <= pdf.numPages; i++) {
+            pdf.getPage(i).then(page => {
+              const vp = page.getViewport({ scale: 1.2 });
+              const canvas = document.createElement('canvas');
+              canvas.width = vp.width;
+              canvas.height = vp.height;
+              container.appendChild(canvas);
+              page.render({ canvasContext: canvas.getContext('2d'), viewport: vp });
+            });
+          }
+        })
+        .catch(err => {
+          document.body.innerHTML =
+            '<p style="color:red; padding:20px;">加载 PDF 时出错：' + err.message + '</p>';
+          console.error(err);
+        });
     </script>
   </body>
 </html>
